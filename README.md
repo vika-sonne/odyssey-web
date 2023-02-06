@@ -7,7 +7,20 @@ Odyssey Web graphics engine
 
 Welcome to web featured graphics editor to add/edit graphic primitives. Just start server side and open url on client side with web browser.
 
-For now editor support add/edit lines on the web page. Press `l` to activate `Lines tool`.
+## Client side
+
+Workflow of editor page: select tool, make changes.
+
+### Tools
+
+#### `Line Tool`
+- Key shortcut: `l`.
+- Add line points: click sheet on free space, press key `Enter` to finish (`Shift+Enter` for closed line).
+- Edit line point: move mouse over line point, hold down mouse button and drag, press key `Esc` to cancel.
+- Delete line point: move mouse over line point, press key `Delete`.
+- Delete line: move mouse over line point, press keys `Shift+Delete`.
+
+## Server side
 
 ### Install requirements before server use:
 ```sh

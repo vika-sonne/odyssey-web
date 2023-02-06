@@ -68,17 +68,19 @@ class OdysseyDrawExample(Inputbase):
 			if id:
 				# set container to existing SVG tag with id
 				self.root_tag = document.getElementById(id)
-				print(f'GET BY ID {id}: {self.root_tag=}')
+				# print(f'GET BY ID {id}: {self.root_tag=}')
 			else:
 				# set container to new SVG tag
 				self.root_tag = create_svg_tag('g', id='i' + self.new_id())
 				if(ui := self.get_ui_contaiter()):
 					ui <= self.root_tag  # add tag to SVG document
 
-		def clear(self):
-			'Discard action data'
+		def clear_svg(self):
+			'Clear SVG tags'
 			if hasattr(self, 'root_tag') and self.root_tag:
+				self.root_tag.innerHTML = ''
 				self.root_tag.remove()
+				self.root_tag = None
 
 		def is_dark(self) -> bool:
 			return True
@@ -284,7 +286,7 @@ class OdysseyDrawExample(Inputbase):
 
 		def pointer_up(self, pars: ActionBase.Parameters) -> ActionBase.Result:
 			'return Done for remove action'
-			self.clear()
+			self.clear_svg()
 			return ActionBase.Result.Done
 
 		@classmethod
@@ -341,6 +343,16 @@ class OdysseyDrawExample(Inputbase):
 		else:
 			for i in self.document:
 				yield i
+
+	def document_del(self, id: str | object):
+		if type(id) == str:
+			for i in self.document:
+				if i.id == id:
+					self.document.remove(i)
+					break
+		else:
+			self.document.remove(id)
+		print(f'COMMIT\n{self.serialize()}')
 
 	def serialize(self, offset=0) -> str:
 		ret = ''
@@ -476,7 +488,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 					OdysseyDrawExample.Multiline(self.root_tag.id, OdysseyDrawExample.Layers.Draw, self.closed, self.tool.svg_points_iter()))
 
 		def cancel(self):
-			self.clear()
+			self.clear_svg()
 
 		def add_segment(self, pos1: Pos, pos2: Pos, temporary=True):
 			l = create_svg_tag('line')
@@ -571,7 +583,12 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 				self.line_2.attrs['x2'], self.line_2.attrs['y2'] = pos
 
 		def commit(self):
-			self.line.points = list(self.tool.svg_points_iter())
+			if(points := list(self.tool.svg_points_iter())):
+				print('COMMIT POINT')
+				self.line.points = points
+			else:
+				# empty line with no points # delete line from document
+				self.tool.odg().document_del(self.line.id)
 
 		def cancel(self):
 			# cancel line edit # restore SVG lines positions
@@ -594,6 +611,24 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 					return self.Result.Done
 				case 'Escape':
 					return self.Result.Cancel
+				case 'Delete':
+					if pars.shiftKey:
+						# delete line
+						self.clear_svg()
+					else:
+						# delete point
+						if self.line_1 and self.line_2:
+							self.line_2.attrs['x2'] = self.line_1.attrs['x2']
+							self.line_2.attrs['y2'] = self.line_1.attrs['y2']
+							self.line_1.remove()
+							self.line_1 = None
+						elif self.line_1:
+							self.line_1.remove()
+							self.line_1 = None
+						elif self.line_2:
+							self.line_2.remove()
+							self.line_2 = None
+					return self.Result.Done
 			return self.Result.Continue
 
 		@classmethod
@@ -629,7 +664,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 						return
 			# no one point under mouse # hide selection point UI
 			if(ps := self.point_selection):
-				ps.clear()
+				ps.clear_svg()
 				self.line = self.point_selection = None
 
 	def pointer_down(self, pars: ActionBase.Parameters):
@@ -637,7 +672,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 			a.pointer_down(pars)  # action in progress # redirect input
 		elif self.point_selection and self.line:
 			self.action = self.EditAction(self, pars, self.line)
-			self.point_selection.clear()
+			self.point_selection.clear_svg()
 			self.line = self.point_selection = None
 		else:
 			self.action = self.AddAction(self, pars)
@@ -649,6 +684,13 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 	def key_down(self, pars: ActionBase.Parameters) -> ActionBase.Result:
 		if(a := self.action):
 			return a.key_down(pars)
+		elif pars.key == 'Delete':
+			if self.point_selection and self.line:
+				# delete line/point
+				pars.pos = self.point_selection.pos
+				self.pointer_down(pars)
+				if(a := self.action):
+					return a.key_down(pars)
 
 	def document_lines_iter(self):
 		'iterate document line by two points'
