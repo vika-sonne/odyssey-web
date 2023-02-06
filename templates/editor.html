@@ -1,0 +1,79 @@
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5" ><![endif]-->
+<html dir="ltr" lang="en" class="" style="background-color: rgb(27, 30, 32); background-image: unset; --ntp-theme-text-color:rgba(252, 252, 252, 1);">
+<head>
+	<meta charset="utf-8">
+	<title>Playbook</title>
+	<meta name="application-name" content="odyssey.playbook">
+	<meta name="apple-mobile-web-app-title" content="odyssey.playbook">
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="Description" content="odyssey.playbook is free online game playbook software for making game process diagrams">
+	<meta name="Keywords" content="diagram, online, game maker">
+	<meta itemprop="name" content="odyssey.playbook - free game maker online">
+	<meta itemprop="description" content="odyssey.playbook is a free online game maker application. You can use it to create quests, dialogs">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="theme-color" content="#d89000">
+	<link href="/static/common.css" rel="stylesheet">
+	<link href="/static/dark.css" rel="stylesheet">
+	<script src="/static/brython.js"></script>
+	<script src="/static/brython_stdlib.js"></script>
+	<script src="/static/odyssey_web_base.py" type="text/python" id="bs"></script>
+	<script src="/static/odyssey_graph.py" type="text/python" id="odg"></script>
+	<script src="/static/odyssey_test.py" type="text/python" id="po"></script>
+<html>
+<body>
+<body onload="brython()" class="odEditor">
+	<script type="text/python">
+		from po import OdysseyDrawExample
+		OdysseyDrawExample.init()
+	</script>
+	<!-- Menu bar (on top) -->
+	<div class="odMenubarContainer" style="height: 70px;">
+		<!-- <input type="file" /> -->
+		<div class="odMenubar" style="position: absolute; padding-left: 59px; box-sizing: border-box; top: 34px;">
+			<a class="odMenuItem">Файл</a>
+			<a class="odMenuItem">Правка</a>
+			<a class="odMenuItem">Вид</a>
+			<a class="odMenuItem">Помощь</a>
+			<a class="odMenuItem odStatus">
+				<div title="Изменения не сохранены. Щелкните здесь для сохранения." class="odStatusAlert" style="cursor: pointer;">Изменения не сохранены. Щелкните здесь для сохранения. <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iYmxhY2siIHdpZHRoPSIxOHB4IiBoZWlnaHQ9IjE4cHgiPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTkgMTJ2N0g1di03SDN2N2MwIDEuMS45IDIgMiAyaDE0YzEuMSAwIDItLjkgMi0ydi03aC0yem0tNiAuNjdsMi41OS0yLjU4TDE3IDExLjVsLTUgNS01LTUgMS40MS0xLjQxTDExIDEyLjY3VjNoMnoiLz48L3N2Zz4=">
+				</div>
+			</a>
+		</div>
+		<div style="position: absolute; right: 120px; left: 60px; top: 9px; height: 26px; display: block; overflow: hidden; text-overflow: ellipsis;">
+			<a title="Схема без названия - Переименовать" class="odMenuItem" style="padding: 2px 8px; display: inline; font-size: 18px; white-space: nowrap;">Схема без названия</a>
+		</div>
+	</div>
+
+	<!-- bottom status line -->
+	<div class="odStatusLineContaiter" style="height: 40px;">
+		<p class="odStatusLineContaiter">
+			<div class="odStatusLine">Pointer: <span id="PointerCoord"></span></div>
+			<div class="odStatusLine">Grid: <span id="GridStatus"></span></div>
+			<div class="odStatusLine">Sheet: <span id="SheetStatus"></span></div>
+			<div class="odStatusLine">Tool: <span id="ToolStatus"></span></div>
+			<div class="odStatusLine"><span id="ActionStatus"></span></div>
+		</p>
+	</div>
+
+	<!-- Svg -->
+	<div class="odGraphContainer odGraphBackdrop" style="inset: 70px 0px 40px 0px; touch-action: none; overflow: auto;" tabindex="0">
+		<div id="Background" class="odBackgroundPage" style="position: absolute; border-width: 1px; overflow: hidden; left: 0px; top: 0px; width: 8000px; height: 6000px; background-position: -1px -1px;"></div>
+		<svg id="SvgContainer" style="left: 0px; top: 0px; width: 100%; height: 100%; display: block; min-width: 800px; min-height: 600px; position: absolute; background-image: none;">
+			<defs>
+				<filter id="dropShadow">
+					<feGaussianBlur in="SourceAlpha" stdDeviation="1.7" result="blur"></feGaussianBlur>
+					<feOffset in="blur" dx="3" dy="3" result="offsetBlur"></feOffset>
+					<feFlood flood-color="#3D4574" flood-opacity="0.4" result="offsetColor"></feFlood>
+					<feComposite in="offsetColor" in2="offsetBlur" operator="in" result="offsetBlur"></feComposite>
+					<feBlend in="SourceGraphic" in2="offsetBlur"></feBlend>
+				</filter>
+			</defs>
+			<g id="scheme"></g>
+			<g id="scheme_ui"></g>
+		</svg>
+	</div>
+</div>
+</body>
+</html>

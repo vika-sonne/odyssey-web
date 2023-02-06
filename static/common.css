@@ -1,0 +1,225 @@
+/* Status Line */
+div.odStatusLineContaiter {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+}
+p.odStatusLineContaiter {
+	text-align: center;
+	display:table-cell;
+	vertical-align:middle;
+	width:100%;
+}
+div.odStatusLine {
+	display: inline-block;
+	padding: 10px;
+	min-width: 20%;
+}
+
+/* Odyssey */
+foreignObject.odText {
+	overflow: visible;
+	text-align: center;
+	pointer-events: none;
+	width: 100%;
+	height: 100%;
+}
+div.odText {
+	display: table;
+	align-items: unsafe center;
+	justify-content: unsafe center;
+	position: absolute;
+}
+div.odTextContent {
+	display: table-cell;
+}
+g.odMoveable {
+	cursor: move;
+	visibility: visible;
+}
+
+/* Editor */
+.odEditor {
+	font-family:-apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+	font-size:14px;
+	border:none;
+	margin:0px;
+}
+.odEditor *:not(.geScrollable)::-webkit-scrollbar {
+	width:10px;
+	height:10px;
+}
+.odEditor ::-webkit-scrollbar-track {
+	background-clip:padding-box;
+	border:solid transparent;
+	border-width:1px;
+}
+.odEditor ::-webkit-scrollbar-corner {
+	background-color:transparent;
+}
+.odEditor ::-webkit-scrollbar-thumb {
+	background-color:rgba(0,0,0,.1);
+	background-clip:padding-box;
+	border:solid transparent;
+	border-radius:10px;
+}
+.odEditor ::-webkit-scrollbar-thumb:hover {
+	background-color:rgba(0,0,0,.4);
+}
+.odEditor input[type=text]::-ms-clear {
+	display: none;
+}
+.odEditor input, select, textarea, button {
+       font-size: inherit;
+}
+.odEditor input {
+       border-width: 2px;
+}
+.odEditor select {
+       border-width: 1px;
+}
+.odEditor div.odTooltip {
+	background: whiteSmoke;
+	border-color: lightGray;
+	font-size: 11px;
+	color: black;
+	padding:6px;
+}
+
+.odGraphBackdrop {
+	background-color: #f8f9fa;
+}
+
+/* Menu Bar */
+.odMenubar {
+	padding:0px 2px 0px 2px;
+	vertical-align:middle;
+}
+.odMenubarContainer {
+	top: 0px;
+	left: 0px;
+	right: 0px;
+}
+.odMenubarContainer .odMenuItem, .odToolbar .odMenuItem {
+	padding:6px 6px 6px 9px;
+	cursor:default;
+}
+.odMenubarContainer .odMenuItem:hover {
+	background: #eee;
+	border-radius:2px;	
+}
+.odMenubarContainer .odMenuItem:active {
+	background: #F8C382;
+}
+.odToolbarContainer .odButton:hover {
+	opacity:1;
+	_filter:none !important;
+	background: #eee;
+	border-radius:2px;
+}
+.odToolbarContainer .odButton:active, .odToolbarContainer .odLabel:active {
+	background: #F8C382;
+}
+.odToolbarContainer .odLabel:hover {
+	background: #eee;
+	border-radius:2px;
+}
+.odActiveButton:active {
+	opacity: 0.3;
+}
+.odToolbarButton {
+	opacity: 0.6;
+}
+.odToolbarButton:active {
+	opacity: 0.2;
+}
+.odMenubarContainer, .odToolbarContainer, .odGraphContainer, .odSidebarContainer, .odFooterContainer, .odHsplit, .odVsplit {
+	overflow:hidden;
+	position:absolute;
+	cursor:default;
+}
+.odSidebarContainer a, .odMenubarContainer a, .odToolbar a {
+	color:#000000;
+	text-decoration:none;
+}
+.odMenubar, .odToolbar {
+	white-space:nowrap;
+	display:block;
+	width:100%;
+}
+.odMenubarContainer .odMenuItem, .odToolbar .odButton, .odToolbar .odLabel, .odSidebar, .odSidebarContainer .odTitle, .odSidebar .odMenuItem {
+	-webkit-transition: all 0.1s ease-in-out;
+	-moz-transition: all 0.1s ease-in-out;
+	-o-transition: all 0.1s ease-in-out;
+	-ms-transition: all 0.1s ease-in-out;
+	transition: all 0.1s ease-in-out;
+}
+.odStatus > * {
+	overflow:hidden;
+	white-space:nowrap;
+	vertical-align:middle;
+	display:inline-block;
+	font-size:12px;
+	margin-right:8px;
+}
+.odStatus img {
+	max-width:16px;
+	vertical-align:bottom;
+}
+
+.odButton {
+	background-image: none;
+	background-color: #f5f5f5;
+	border-radius: 2px;
+	border: 1px solid #d8d8d8;
+	color: #333;
+	cursor: default;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing:0.25px;
+	height: 29px;
+	line-height: 27px;
+	margin: 0 0 0 8px;
+	min-width: 72px;
+	outline: 0;
+	padding: 0 8px;
+	cursor: pointer;
+}
+.odButton:hover, .odButton:focus {
+	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+	border: 1px solid #c6c6c6;
+	background-color: #f8f8f8;
+	background-image: linear-gradient(#f8f8f8 0px,#f1f1f1 100%);
+	color: #111;
+}
+.odButton:active, .odStatus:active {
+	opacity: .7;
+}
+.odButton:disabled {
+	opacity: .5;
+}
+
+.odPrimaryButton {
+	background-color: #4d90fe;
+	background-image: linear-gradient(#4d90fe 0px,#4787ed 100%);
+	border: 1px solid #3079ed;
+	color: #fff;
+}
+.odPrimaryButton:hover, .odPrimaryButton:focus {
+	background-color: #357ae8;
+	background-image: linear-gradient(#4d90fe 0px,#357ae8 100%);
+	border: 1px solid #2f5bb7;
+	color: #fff;
+}
+.odPrimaryButton:disabled {
+	opacity: .5;
+}
+
+/* New element by dragging from elements library */
+.odDragPreview {
+	position: absolute; z-index: 1000; opacity: 0.7; pointer-events: none; visibility: visible; border: 1px dashed black;
+}
