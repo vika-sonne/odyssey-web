@@ -19,6 +19,7 @@ Workflow of editor page: select tool, make changes.
 - Edit line point: move mouse over line point, hold down mouse button and drag, press key `Esc` to cancel.
 - Delete line point: move mouse over line point, press key `Delete`.
 - Delete line: move mouse over line point, press keys `Shift+Delete`.
+- Move line: move mouse over line point, press key `m`, drag, mouse click or press key `Esc` to cancel.
 
 ## Server side
 

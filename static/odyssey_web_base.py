@@ -6,7 +6,7 @@ from math import copysign, sqrt
 from browser import html, document
 
 
-def create_svg_tag(tag_name: str, classes: str | tuple[str] | None = None, id: str | None = None):
+def create_svg_tag(tag_name: str, classes: str | tuple[str] | None = None, id: str | None = None) -> object:
 	ret = document.createElementNS('http://www.w3.org/2000/svg', tag_name)
 	if isinstance(classes, str):
 		ret.classList.add(classes)

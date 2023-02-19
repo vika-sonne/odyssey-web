@@ -59,24 +59,21 @@ class OdysseyDrawExample(Inputbase):
 
 	class UiBase:
 
-		DEFAULT_TEMP_COLOR = 'yellow'
-		DEFAULT_COLOR = 'green'
-
 		def __init__(self, id: str | None = None) -> None:
 			'id - if specified - set root_tag to existing SVG tag with this id'
 			# set container: root SVG tag to positioning children tags
+			self.root_tag = None
 			if id:
 				# set container to existing SVG tag with id
 				self.root_tag = document.getElementById(id)
-				# print(f'GET BY ID {id}: {self.root_tag=}')
-			else:
+			if not self.root_tag:
 				# set container to new SVG tag
-				self.root_tag = create_svg_tag('g', id='i' + self.new_id())
+				self.root_tag = create_svg_tag('g', id='i' + self.new_id() if not id else id)
 				if(ui := self.get_ui_contaiter()):
 					ui <= self.root_tag  # add tag to SVG document
 
-		def clear_svg(self):
-			'Clear SVG tags'
+		def remove_svg(self):
+			'Remove SVG tags'
 			if hasattr(self, 'root_tag') and self.root_tag:
 				self.root_tag.innerHTML = ''
 				self.root_tag.remove()
@@ -106,6 +103,20 @@ class OdysseyDrawExample(Inputbase):
 		def new_id(cls) -> str:
 			'Returns new ID. Used for tag'
 			return b64encode(randbytes(3), b'-_').decode()
+
+		@classmethod
+		def get_main_svg_contaiter(cls) -> object:
+			return document['SvgContainer']
+
+		@classmethod
+		def create_transform(cls) -> 'SVGTransform':
+			# call SVG root contaiter
+			return cls.get_main_svg_contaiter().createSVGTransform()
+
+		@classmethod
+		def create_svg_point(cls) -> 'SVGPoint':
+			# call SVG root contaiter
+			return cls.get_main_svg_contaiter().createSVGPoint()
 
 
 	class Pointer(UiBase):
@@ -190,11 +201,12 @@ class OdysseyDrawExample(Inputbase):
 
 		def commit(self):
 			'Document commit for action data'
-			pass
+			self.action = None
+			print(f'COMMIT\n{OdysseyDrawExample.get_odg().serialize()}')
 
 		def cancel(self):
 			'Document cancel for action data'
-			pass
+			self.action = None
 
 		# Input
 
@@ -286,7 +298,7 @@ class OdysseyDrawExample(Inputbase):
 
 		def pointer_up(self, pars: ActionBase.Parameters) -> ActionBase.Result:
 			'return Done for remove action'
-			self.clear_svg()
+			self.remove_svg()
 			return ActionBase.Result.Done
 
 		@classmethod
@@ -327,7 +339,7 @@ class OdysseyDrawExample(Inputbase):
 
 	def document_add(self, item: object):
 		self.document.append(item)
-		print(f'COMMIT\n{self.serialize()}')
+		print(f'COMMIT ADD\n{self.serialize()}')
 
 	def document_get(self, id: str) -> object | None:
 		for i in self.document:
@@ -352,7 +364,7 @@ class OdysseyDrawExample(Inputbase):
 					break
 		else:
 			self.document.remove(id)
-		print(f'COMMIT\n{self.serialize()}')
+		print(f'COMMIT DEL\n{self.serialize()}')
 
 	def serialize(self, offset=0) -> str:
 		ret = ''
@@ -472,6 +484,8 @@ class OdysseyDrawExample(Inputbase):
 
 class LineTool(OdysseyDrawExample.DocumentTool):
 
+	DEFAULT_TEMP_COLOR = 'yellow'
+	DEFAULT_COLOR = 'green'
 
 	class AddAction(OdysseyDrawExample.ToolAction, OdysseyDrawExample.UiBase):
 
@@ -480,7 +494,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 			OdysseyDrawExample.UiBase.__init__(self)  # create new contaiter tag
 			self.closed = False  # is closed line # used by commit
 			# add first segment
-			self.add_segment(pars.pos, pars.pos)
+			self.root_tag <= self.tool.create_segment(pars.pos, pars.pos)
 
 		def commit(self):
 			if(odg := self.tool.odg()):
@@ -488,15 +502,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 					OdysseyDrawExample.Multiline(self.root_tag.id, OdysseyDrawExample.Layers.Draw, self.closed, self.tool.svg_points_iter()))
 
 		def cancel(self):
-			self.clear_svg()
-
-		def add_segment(self, pos1: Pos, pos2: Pos, temporary=True):
-			l = create_svg_tag('line')
-			l.attrs['x1'], l.attrs['y1'] = pos1
-			l.attrs['x2'], l.attrs['y2'] = pos2
-			l.attrs['stroke'] = self.DEFAULT_TEMP_COLOR if temporary else self.DEFAULT_COLOR
-			l.attrs['stroke-width'] = 2
-			self.root_tag <= l
+			self.remove_svg()
 
 		def pointer_move(self, pars: ActionBase.Parameters):
 			# sync last line segment with pointer position
@@ -509,18 +515,18 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 			if self.get_childs_count():
 				# add temporary line for next edit segment
 				if(l := self.get_last_child()):
-					l.attrs['stroke'] = self.DEFAULT_COLOR
-					self.add_segment(Pos(l.attrs['x2'], l.attrs['y2']), pars.pos)
+					l.attrs['stroke'] = self.tool.DEFAULT_COLOR
+					self.root_tag <= self.tool.create_segment(Pos(l.attrs['x2'], l.attrs['y2']), pars.pos)
 			else:
 				# add first segment
-				self.add_segment(pars.pos, pars.pos)
+				self.root_tag <= self.tool.create_segment(pars.pos, pars.pos)
 
 		def pointer_up(self, pars: ActionBase.Parameters) -> ActionBase.Result:
 			if(l := self.get_last_child()):
 				if self.calc_line_lenght(l) > 1:  # if dont reuse last line
 					# pointer was moved between last down & up # no reuse
-					l.attrs['stroke'] = self.DEFAULT_COLOR
-					self.add_segment(pars.pos, pars.pos)
+					l.attrs['stroke'] = self.tool.DEFAULT_COLOR
+					self.root_tag <= self.tool.create_segment(pars.pos, pars.pos)
 			return ActionBase.Result.Continue
 
 		def key_down(self, pars: ActionBase.Parameters) -> ActionBase.Result:
@@ -533,12 +539,12 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 						l.remove()
 					# change last segment from temp
 					if(l := self.get_last_child()):
-						l.attrs['stroke'] = self.DEFAULT_COLOR
+						l.attrs['stroke'] = self.tool.DEFAULT_COLOR
 					# add segment if closed line
 					if pars.shiftKey and self.get_childs_count() > 1:
 						# close lines # connect first and last lines
 						l1, l2 = self.get_last_child(), self.get_first_child()
-						self.add_segment(Pos(l1.attrs['x2'], l1.attrs['y2']), Pos(l2.attrs['x1'], l2.attrs['y1']), False)
+						self.root_tag <= self.tool.create_segment(Pos(l1.attrs['x2'], l1.attrs['y2']), Pos(l2.attrs['x1'], l2.attrs['y1']), False)
 						self.closed = True
 					# check for lines count
 					return self.Result.Done if self.get_childs_count() > 0 else self.Result.Cancel
@@ -584,7 +590,6 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 
 		def commit(self):
 			if(points := list(self.tool.svg_points_iter())):
-				print('COMMIT POINT')
 				self.line.points = points
 			else:
 				# empty line with no points # delete line from document
@@ -614,7 +619,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 				case 'Delete':
 					if pars.shiftKey:
 						# delete line
-						self.clear_svg()
+						self.remove_svg()
 					else:
 						# delete point
 						if self.line_1 and self.line_2:
@@ -636,6 +641,44 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 			return 'Edit line'
 
 
+	class MoveAction(OdysseyDrawExample.ToolAction, OdysseyDrawExample.UiBase):
+
+		def __init__(self, tool: 'LineTool', pars: ActionBase.Parameters, line: OdysseyDrawExample.Multiline):
+			OdysseyDrawExample.ToolAction.__init__(self, tool)
+			OdysseyDrawExample.UiBase.__init__(self, line.id)
+			self.closed = line.closed  # is closed line # used by commit
+			self.line = line  # document line
+			self.pos: Pos = pars.pos  # position
+			# add transform matrix for action
+			if not(transforms := self.root_tag.transform.baseVal):
+				transforms.appendItem(self.create_transform())
+
+		def commit(self):
+			# apply transform matrix to line points
+			m = self.root_tag.transform.baseVal.consolidate().matrix
+			self.line.points = []
+			for pos in self.tool.svg_points_iter():
+				p = self.create_svg_point()
+				p.x, p.y = pos
+				p = p.matrixTransform(m)
+				self.line.points.append(Pos(p.x, p.y))
+			# sync UI # apply transform matrix to SVG lines
+			self.remove_svg()
+			self.tool.load_line(self.line)
+
+		def cancel(self):
+			self.remove_svg()
+			self.tool.load_line(self.line)
+
+		def pointer_up(self, pars: ActionBase.Parameters) -> ActionBase.Result:
+			return self.Result.Done
+
+		def pointer_move(self, pars: ActionBase.Parameters):
+			# pos changed # update transform matrix
+			d = pars.pos - self.pos
+			self.root_tag.transform.baseVal.getItem(0).setTranslate(d.x, d.y)
+
+
 	def __init__(self) -> None:
 		super().__init__()
 		self.point_selection: OdysseyDrawExample.PointSelection | None = None  # point selection UI: show edit points
@@ -644,10 +687,12 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 	def commit(self):
 		if(a := self.action):
 			a.commit()
+		super().commit()
 
 	def cancel(self):
 		if(a := self.action):
 			a.cancel()
+		super().cancel()
 
 	def pointer_move(self, pars: ActionBase.Parameters):
 		if(a := self.action):
@@ -664,7 +709,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 						return
 			# no one point under mouse # hide selection point UI
 			if(ps := self.point_selection):
-				ps.clear_svg()
+				ps.remove_svg()
 				self.line = self.point_selection = None
 
 	def pointer_down(self, pars: ActionBase.Parameters):
@@ -672,7 +717,7 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 			a.pointer_down(pars)  # action in progress # redirect input
 		elif self.point_selection and self.line:
 			self.action = self.EditAction(self, pars, self.line)
-			self.point_selection.clear_svg()
+			self.point_selection.remove_svg()
 			self.line = self.point_selection = None
 		else:
 			self.action = self.AddAction(self, pars)
@@ -691,13 +736,12 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 				self.pointer_down(pars)
 				if(a := self.action):
 					return a.key_down(pars)
-
-	def document_lines_iter(self):
-		'iterate document line by two points'
-		if(odg := OdysseyDrawExample.get_odg()):
-			for line in (x for x in odg.document_iter(OdysseyDrawExample.Multiline)):
-				for pos1, pos2 in zip(line.points[:-1], line.points[1:]):
-					yield (pos1, pos2)
+		elif pars.key == 'm':
+			if self.point_selection and self.line:
+				pars.pos = self.point_selection.pos
+				self.action = self.MoveAction(self, pars, self.line)
+				self.point_selection.remove_svg()
+				self.line = self.point_selection = None
 
 	def svg_points_iter(self):
 		'iterate line points from action SVG collection (root tag)'
@@ -707,6 +751,20 @@ class LineTool(OdysseyDrawExample.DocumentTool):
 					yield Pos(t.attrs['x1'], t.attrs['y1'])
 			if not a.closed and (l := a.get_last_child()):
 				yield Pos(l.attrs['x2'], l.attrs['y2'])
+
+	def load_line(self, line: OdysseyDrawExample.Multiline):
+		tag = OdysseyDrawExample.UiBase(line.id)  # create UI for line
+		# add lines to UI
+		for pos1, pos2 in zip(line.points[:-1], line.points[1:]):
+			tag.root_tag <= self.create_segment(pos1, pos2, False)
+
+	def create_segment(cls, pos1: Pos, pos2: Pos, temporary=True) -> object:
+		l = create_svg_tag('line')
+		l.attrs['x1'], l.attrs['y1'] = pos1
+		l.attrs['x2'], l.attrs['y2'] = pos2
+		l.attrs['stroke'] = cls.DEFAULT_TEMP_COLOR if temporary else cls.DEFAULT_COLOR
+		l.attrs['stroke-width'] = 2
+		return l
 
 	@classmethod
 	def title(cls) -> str:
